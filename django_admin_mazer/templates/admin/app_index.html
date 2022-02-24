@@ -1,0 +1,23 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block bodyclass %}{{ block.super }} app-{{ app_label }}{% endblock %}
+
+{% if not is_popup %}
+    {% block breadcrumbs %}
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb breadcrumb-right">
+                <li class="breadcrumb-item"><a href="{% url 'admin:index' %}">{% translate 'Home' %}</a></li>
+                {% for app in app_list %}
+                    {% if forloop.last %}
+                        <li class="breadcrumb-item active" aria-current="page">{{ app.name }}</li>
+                    {% else %}
+                        <li class="breadcrumb-item"><a href="{{ app.app_url }}">{{ app.app_label }}</a></li>
+                    {% endif %}
+                {% endfor %}
+            </ol>
+        </nav>
+    {% endblock %}
+{% endif %}
+
+{% block sidebar %}{% endblock %}

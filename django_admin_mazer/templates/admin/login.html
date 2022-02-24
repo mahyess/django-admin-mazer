@@ -1,0 +1,118 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static django_admin_mazer %}
+
+{% block extrastyle %}{{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{% static "admin/css/login.css" %}">
+    <link rel="stylesheet" type="text/css" href="https://zuramai.github.io/mazer/demo/assets/css/pages/auth.css">
+    {{ form.media }}
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block usertools %}{% endblock %}
+
+{% block nav-global %}{% endblock %}
+
+{% block nav-sidebar %}{% endblock %}
+
+{% block content_title %}{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block base_content %}
+    <div id="auth">
+        <div class="row h-100">
+            <div class="col-lg-5 col-12">
+                <div id="auth-left">
+                    <h2 class="auth-title">Log in.</h2>
+                    <p class="auth-subtitle mb-5">Log in with your credentials.</p>
+                    {% if form.errors and not form.non_field_errors %}
+                        <p class="errornote text-danger">
+                            {% if form.errors.items|length == 1 %}
+                                {% translate "Please correct the error below." %}{% else %}
+                                {% translate "Please correct the errors below." %}{% endif %}
+                        </p>
+                    {% endif %}
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <p class="errornote text-danger">
+                                {{ error }}
+                            </p>
+                        {% endfor %}
+                    {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <p class="text-danger">
+                            {% blocktranslate trimmed %}
+                                You are authenticated as {{ username }}, but are not authorized to
+                                access this page. Would you like to login to a different account?
+                            {% endblocktranslate %}
+                        </p>
+                    {% endif %}
+
+                    <form action="{{ app_path }}" method="post" id="login-form">
+                        {% csrf_token %}
+                        <label for="{{ form.username.name }}">
+                        </label>
+                        <div class="form-group position-relative has-icon-left{% if not form.username.errors %} mb-4{% endif %}">
+                            <input type="text" id="{{ form.username.name }}"
+                                   class="form-control form-control-xl{% if form.username.errors %} is-invalid{% endif %}"
+                                   placeholder="Username"
+                                   name="{{ form.username.name }}"
+                                   value="{% if form.username.value %}{{ form.username.value }}{% endif %}"/>
+                            <div class="form-control-icon">
+                                <i class="bi bi-person"></i>
+                            </div>
+                        </div>
+                        {% if form.username.errors %}
+                            <div class="help-block text-danger mb-3">
+                                {{ form.username.errors }}
+                            </div>
+                        {% endif %}
+                        <label for="{{ form.password.name }}">
+                        </label>
+                        <div class="form-group position-relative has-icon-left{% if not form.password.errors %} mb-4{% endif %}">
+                            <input type="password" id="{{ form.password.name }}"
+                                   class="form-control form-control-xl{% if form.password.errors %} is-invalid{% endif %}"
+                                   placeholder="Password"
+                                   name="{{ form.password.name }}"/>
+                            <div class="form-control-icon">
+                                <i class="bi bi-shield-lock"></i>
+                            </div>
+                        </div>
+                        {% if form.password.errors %}
+                            <div class="help-block text-danger mb-3">
+                                {{ form.password.errors }}
+                            </div>
+                        {% endif %}
+                        <div class="form-check form-check-lg d-flex align-items-end">
+                            <input class="form-check-input me-2" type="checkbox" value="" id="flexCheckDefault">
+                            <label class="form-check-label text-gray-600" for="flexCheckDefault">
+                                Keep me logged in
+                            </label>
+                        </div>
+                        <input class="btn btn-primary btn-block btn-lg shadow-lg mt-3" type="submit"
+                               value="{% translate 'Log in' %}">
+
+                    </form>
+                    <div class="text-center text-md fs-5">
+                        {% url 'admin_password_reset' as password_reset_url %}
+                        {#                        {% if password_reset_url %}#}
+                        <div class="password-reset-link">
+                            <a href="{{ password_reset_url }}"
+                               class="btn btn-outline-primary btn-block mt-3">
+                                {% translate 'Forgotten your password or username?' %}
+                            </a>
+                        </div>
+                        {#                        {% endif %}#}
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-7 d-none d-lg-block">
+                <div id="auth-right">
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

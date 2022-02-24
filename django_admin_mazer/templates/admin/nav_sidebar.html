@@ -1,0 +1,58 @@
+{% load i18n static %}
+
+
+<div class="sidebar-wrapper active">
+    <div class="sidebar-header">
+        <div class="d-flex justify-content-between">
+            <div class="logo">
+                <div class="toggler">
+                    <a href="#" class="sidebar-hide d-xl-none d-block float-end">
+                        <i class="bi bi-x bi-middle"></i>
+                    </a>
+                </div>
+                <a href="{% url 'admin:index' %}">
+                    {% if site_logo %}
+                        <img src="{% static site_logo %}" alt="Logo" srcset=""/>
+                    {% elif site_header %}
+                        <span>{{ site_header }}</span>
+                    {% else %}
+                        <img src="https://zuramai.github.io/mazer/demo/assets/images/logo/logo.png" alt="Logo"
+                             srcset=""/>
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="sidebar-menu">
+        <ul class="menu">
+            {% for app in available_apps %}
+                {% if app.isTitle %}
+                    <li class="sidebar-title">{{ app.app_label }}</li>
+                {% else %}
+                    <li
+                            class="sidebar-item {% if app.app_url in request.path %}active{% endif %} {% if app.models|length > 0 %}has-sub{% endif %}"
+                    >
+                        <a href="{{ app.app_url }}" class="sidebar-link">
+                            <i class="bi bi-stack"></i>
+                            <span class="text-capitalize">{{ app.app_label }}</span>
+                        </a>
+
+                        {% if app.models|length > 0 %}
+                            <ul class="submenu {% if app.app_url in request.path %}active{% endif %}">
+                                {% for model in app.models %}
+                                    <li class="submenu-item {% if model.admin_url in request.path %}active{% endif %}">
+                                        <a class="text-capitalize" href="{{ model.admin_url }}">
+                                            <i class="bi bi-grid-fill"></i>
+                                            {{ model.name }}
+                                        </a>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    </div>
+    <button class="sidebar-toggler btn x"><i data-feather="x"></i></button>
+</div>

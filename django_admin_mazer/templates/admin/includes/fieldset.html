@@ -1,0 +1,67 @@
+{% load django_admin_mazer %}
+
+{% block extrastyle %}
+    <style>
+        @media only screen and (min-width: 992px) {
+            .aligned p.file-upload {
+                margin-left: 0
+            }
+
+            .row > div, input {
+                padding-left: 0;
+                padding-right: 0 !important;
+            }
+
+            form .aligned ul {
+                margin-left: 0;
+                padding-left: 0 !important;
+            }
+
+            form .aligned ul li:before {
+                content: "\00270e";
+                margin-right: 0.5rem;
+            }
+        }
+    </style>
+    {# because mazer's file upload has a margin-left: 170px, which breaks the form #}
+{% endblock %}
+
+<fieldset class="module aligned {{ fieldset.classes }}">
+    {% if fieldset.name %}<h2>{{ fieldset.name }}</h2>{% endif %}
+    {% if fieldset.description %}
+        <div class="description">{{ fieldset.description|safe }}</div>
+    {% endif %}
+    {% for line in fieldset %}
+        <div class="form-group{% if line.fields|length_is:'1' and line.errors %} errors{% endif %}{% if not line.has_visible_field %} hidden{% endif %}{% for field in line %}{% if field.field.name %} field-{{ field.field.name }}{% endif %}{% endfor %}">
+            {% for field in line %}
+                <div class="form-group row">
+                    <div class="col-md-3 col-3 ms-lg-3">
+                        <label class="{% if not line.fields|length_is:'1' and forloop.counter != 1 %}col-auto {% else %}col-sm-10 {% endif %}text-left{% if field.field.field.required %} fw-bold{% endif %} col-form-label"
+                               for="id_{{ field.field.name }}">
+                            {{ field.field.label|capfirst }}
+                        </label>
+                    </div>
+                    <div class="col-lg-6 col-md-9 col-12">
+                        {% if field.is_readonly %}
+                            <div class="readonly" style="margin-top: 7px;">{{ field.contents }}</div>
+                        {% else %}
+                            <div class="row">
+                                {{ field.field|add_class:"form-control is-invalid" }}
+                            </div>
+                        {% endif %}
+                        <div class="help-block text-danger">
+                            {% if not line.fields|length_is:'1' and not field.is_readonly %}
+                                {{ field.errors }}{% endif %}
+                        </div>
+                        {% if field.field.help_text %}
+                            <p class="help-block"><small class="text-muted">{{ field.field.help_text|safe }}</small></p>
+                        {% endif %}
+                        <div class="help-block text-danger flex-start">
+                            {% if line.fields|length_is:'1' %}{{ line.errors }}{% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+</fieldset>

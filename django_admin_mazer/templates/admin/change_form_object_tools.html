@@ -1,0 +1,17 @@
+{% load i18n admin_urls %}
+{% block object-tools-items %}
+    <li class="breadcrumb-item">
+        {% url opts|admin_urlname:'history' original.pk|admin_urlquote as history_url %}
+        <a href="{% add_preserved_filters history_url %}"
+           class="historylink btn btn-outline-secondary rounded-pill btn-sm px-4">
+            {% translate "History" %}
+        </a>
+    </li>
+    {% if has_absolute_url %}
+        <li class="breadcrumb-item">
+            <a href="{{ absolute_url }}" class="viewsitelink btn btn-outline-primary rounded-pill btn-sm px-4">
+                {% translate "View on site" %}
+            </a>
+        </li>
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,171 @@
+{% load i18n static %}<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html lang="{{ LANGUAGE_CODE|default:"en-us" }}" dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% endblock %}</title>
+    {#    <link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">#}
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&amp;display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://zuramai.github.io/mazer/demo/assets/css/bootstrap.css">
+    <link rel="stylesheet"
+          href="https://zuramai.github.io/mazer/demo/assets/vendors/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet"
+          href="https://zuramai.github.io/mazer/demo/assets/vendors/perfect-scrollbar/perfect-scrollbar.css">
+    <link rel="stylesheet" href="https://zuramai.github.io/mazer/demo/assets/css/app.css">
+
+    {% if not is_popup and is_nav_sidebar_enabled %}
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/nav_sidebar.css" %}">
+        <script src="{% static 'admin/js/nav_sidebar.js' %}" defer></script>
+    {% endif %}
+    {% block extrastyle %}{% endblock %}
+    {% if LANGUAGE_BIDI %}
+        <link rel="stylesheet" type="text/css"
+              href="{% block stylesheet_rtl %}{% static "admin/css/rtl.css" %}{% endblock %}">{% endif %}
+    {% block extrahead %}{% endblock %}
+    {% block responsive %}
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive.css" %}">
+        {% if LANGUAGE_BIDI %}
+            <link rel="stylesheet" type="text/css" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
+    {% endblock %}
+    {% block blockbots %}
+        <meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
+</head>
+{% load i18n %}
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
+      data-admin-utc-offset="{% now "Z" %}">
+
+<!-- Container -->
+{% block base_content %}
+    <div id="container app">
+        <div id="sidebar" class="{% if not is_popup and is_nav_sidebar_enabled %}active{% endif %}">
+            {% if not is_popup and is_nav_sidebar_enabled %}
+                {% block nav-sidebar %}
+                    {% include "admin/nav_sidebar.html" %}
+                {% endblock %}
+            {% endif %}
+        </div>
+
+
+        <div class="main shifted" id="main" style="padding-top: 0">
+            {{ site.title }}
+            {% if not is_popup %}
+                <!-- Header -->
+                <div>
+                    <div id="branding">
+                        {# {% block branding %}{% endblock %} #}
+                    </div>
+
+                    {% block nav-global %}{% endblock %}
+                </div>
+                <!-- END Header -->
+
+            {% endif %}
+
+            <div class="content">
+                {% block usertools %}
+                    {% if has_permission %}
+                        <div id="user-tools" class="breadcrumb breadcrumb-right mb-0">
+                            {% block welcome-msg %}
+                                {% translate 'Welcome,&nbsp;' %}
+                                <strong>{% firstof user.get_short_name user.get_username %}</strong>.
+                            {% endblock %}
+                            {% block userlinks %}
+                                {% if site_url %}
+                                    &nbsp;
+                                    <a href="{{ site_url }}">{% translate 'View site' %}</a>
+                                    &nbsp;/
+                                {% endif %}
+                                {% if user.is_active and user.is_staff %}
+                                    {% url 'django-admindocs-docroot' as docsroot %}
+                                    {% if docsroot %}
+                                        &nbsp;
+                                        <a href="{{ docsroot }}">{% translate 'Documentation' %}</a>
+                                        &nbsp;/
+                                    {% endif %}
+                                {% endif %}
+                                {% if user.has_usable_password %}
+                                    &nbsp;
+                                    <a href="{% url 'admin:password_change' %}">{% translate 'Change password' %}</a>
+                                    &nbsp;/
+                                {% endif %}
+                                &nbsp;
+                                <a href="{% url 'admin:logout' %}">{% translate 'Log out' %}</a>
+                            {% endblock %}
+                        </div>
+                    {% endif %}
+                {% endblock %}
+                <!-- Content -->
+                <div>
+                    <div class="row">
+                        <div class="col-md-6" style="margin-top: 2rem">
+                            {% block pretitle %}{% endblock %}
+                            {% block content_title %}{% if title %}<h3 class="align-bottom">{{ title }}</h3>
+                            {% endif %}{% endblock %}
+                            {% block content_subtitle %}{% if subtitle %}
+                                <h5 class="text-subtitle text-muted align-bottom">{{ subtitle|slice:"0:30" }}</h5>
+                            {% endif %}{% endblock %}
+                        </div>
+                        <div class="col-md-6">
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-right mb-0">
+                                    {% block breadcrumbs %}
+                                        <li class="breadcrumb-item"><a
+                                                href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
+                                        </li>
+                                        {% if title %} &rsaquo;
+                                            <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+                                        {% endif %}
+                                    {% endblock %}
+                                </ol>
+                            </nav>
+                            <nav aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-right object-tools">
+                                    {% block object-tools %}{% endblock %}
+                                </ol>
+                            </nav>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        {% url 'admin:index' as home_url %}
+                        <div class="col-{% if request.path in home_url or app_list %}8{% else %}12{% endif %}">
+                            {% block messages %}
+                                {% if messages %}
+                                    {% for message in messages %}
+                                        <div class="alert alert-dismissible show fade
+alert-{% if message.tags %}{{ message.tags }}{% else %}primary{% endif %}">
+                                            {{ message|capfirst }}
+                                            <button type="button" class="btn-close" data-bs-dismiss="alert"
+                                                    aria-label="Close"></button>
+                                        </div>
+                                    {% endfor %}
+                                {% endif %}
+                            {% endblock messages %}
+                            {% block content %}
+                                {{ content }}
+                            {% endblock %}
+                        </div>
+                        <div class="col-4">
+                            {% block sidebar %}{% endblock %}
+                        </div>
+                    </div>
+                    <br class="clear">
+                </div>
+                <!-- END Content -->
+                {% block footer %}
+                    <div id="footer"></div>{% endblock %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+<!-- END Container -->
+<script src="https://zuramai.github.io/mazer/demo/assets/vendors/perfect-scrollbar/perfect-scrollbar.min.js"></script>
+<script src="https://zuramai.github.io/mazer/demo/assets/js/bootstrap.bundle.min.js"></script>
+<script src="https://zuramai.github.io/mazer/demo/assets/js/mazer.js"></script>
+</body>
+</html>
